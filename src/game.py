@@ -23,6 +23,8 @@ class Game:
         self.pieceHeight = (self.screenHeight - self.top) / self.board.height
         self.pieceWidth = self.screenWidth / self.board.width
         self.screen = pygame.display.set_mode(self.screenSize)
+        self.pieces_dropped = 0
+        self.rows_cleared = 0
 
     def run(self):
         running = True
@@ -36,7 +38,9 @@ class Game:
                     if event.key == pygame.K_s:
                         y = self.board.drop_height(self.curr_piece, self.x)
                         self.drop(y)
-                        # input()
+                        if self.board.top_filled():
+                            running = False
+                            break
                     if event.key == pygame.K_a:
                         if self.x - 1 >= 0:
                             occupied = False
@@ -64,6 +68,8 @@ class Game:
                 if event.type == MOVEEVENT:
                     if self.board.drop_height(self.curr_piece, self.x) == self.y:
                         self.drop(self.y)
+                        if self.board.top_filled():
+                            running = False
                         break
                     self.y -= 1
             self.screen.fill(BLACK)
@@ -71,12 +77,16 @@ class Game:
             pygame.display.flip()
             # self.board.place(x, y, Piece(BODIES[3]))
         pygame.quit()
+        print("Game information:")
+        print("Pieces dropped:", self.pieces_dropped)
+        print("Rows cleared:", self.rows_cleared)
 
     def drop(self, y):
         self.board.place(self.x, y, self.curr_piece)
         self.x = 5
         self.y = 20
         self.curr_piece = Piece()
+        self.pieces_dropped += 1
 
     def draw(self):
         self.draw_pieces()
@@ -112,7 +122,7 @@ class Game:
                     )
                     pygame.draw.rect(
                         self.screen,
-                        GREEN,
+                        self.board.colors[row][col],
                         pygame.Rect(tl, (self.pieceWidth, self.pieceHeight)),
                     )
 
@@ -124,6 +134,6 @@ class Game:
             )
             pygame.draw.rect(
                 self.screen,
-                GREEN,
+                self.curr_piece.color,
                 pygame.Rect(tl, (self.pieceWidth, self.pieceHeight)),
             )
