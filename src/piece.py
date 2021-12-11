@@ -21,15 +21,18 @@ class Piece:
 
     def calc_skirt(self):
         skirt = []
-        for b in self.body:
-            x, y = b
-            if len(skirt) <= x:
-                skirt.append(y)
+        for i in range(4):
+            low = 1000
+            for b in self.body:
+                if b[0] == i:
+                    low = min(low, b[1])
+            if low != 1000:
+                skirt.append(low)
         return skirt
 
     def get_next_rotation(self):
         width = len(self.skirt)
-        height = max([b[1] for b in self.body])
+        # height = max([b[1] for b in self.body])
         new_body = [(width - b[1], b[0]) for b in self.body]
         leftmost = min([b[0] for b in new_body])
         new_body = [(b[0] - leftmost, b[1]) for b in new_body]

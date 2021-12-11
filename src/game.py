@@ -36,7 +36,7 @@ class Game:
                     if event.key == pygame.K_s:
                         y = self.board.drop_height(self.curr_piece, self.x)
                         self.drop(y)
-                        input()
+                        # input()
                     if event.key == pygame.K_a:
                         if self.x - 1 >= 0:
                             occupied = False
@@ -54,7 +54,7 @@ class Game:
                             for b in self.curr_piece.body:
                                 if self.y + b[1] >= self.board.width:
                                     continue
-                                if self.board.board[self.y + b[1]][self.x + b[0] - 1]:
+                                if self.board.board[self.y + b[1]][self.x + b[0] + 1]:
                                     occupied = True
                                     break
                             if not occupied:
@@ -75,7 +75,7 @@ class Game:
     def drop(self, y):
         self.board.place(self.x, y, self.curr_piece)
         self.x = 5
-        self.y = 15
+        self.y = 20
         self.curr_piece = Piece()
 
     def draw(self):

@@ -34,7 +34,6 @@ class Board:
             self.board[y + pos[1]][x + pos[0]] = True
             self.widths[y + pos[1]] += 1
             self.heights[x + pos[0]] = max(self.heights[x + pos[0]], y + pos[1] + 1)
-        print(self.heights)
         return 0
 
     def drop_height(self, piece, x):
