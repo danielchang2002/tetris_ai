@@ -36,12 +36,29 @@ class Game:
                     if event.key == pygame.K_s:
                         y = self.board.drop_height(self.curr_piece, self.x)
                         self.drop(y)
+                        input()
                     if event.key == pygame.K_a:
-                        self.x = max(self.x - 1, 0)
+                        if self.x - 1 >= 0:
+                            occupied = False
+                            for b in self.curr_piece.body:
+                                if self.y + b[1] >= self.board.width:
+                                    continue
+                                if self.board.board[self.y + b[1]][self.x + b[0] - 1]:
+                                    occupied = True
+                                    break
+                            if not occupied:
+                                self.x -= 1
                     if event.key == pygame.K_d:
-                        self.x = min(
-                            self.x + 1, self.board.width - len(self.curr_piece.skirt)
-                        )
+                        if self.x + 1 <= self.board.width - len(self.curr_piece.skirt):
+                            occupied = False
+                            for b in self.curr_piece.body:
+                                if self.y + b[1] >= self.board.width:
+                                    continue
+                                if self.board.board[self.y + b[1]][self.x + b[0] - 1]:
+                                    occupied = True
+                                    break
+                            if not occupied:
+                                self.x += 1
                     if event.key == pygame.K_w:
                         self.curr_piece = self.curr_piece.get_next_rotation()
                 if event.type == MOVEEVENT:
