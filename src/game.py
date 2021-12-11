@@ -1,7 +1,8 @@
-from pygame.constants import K_RETURN
 from board import Board
+from greedy import Greedy_AI
+from genetic import Genetic_AI
+from mcts import MCTS_AI
 from piece import Piece
-from random import randint
 import pygame
 
 BLACK = 0, 0, 0
@@ -10,7 +11,7 @@ GREEN = (0, 255, 0)
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, mode):
         self.board = Board()
         self.curr_piece = Piece()
         self.y = 20
@@ -25,15 +26,36 @@ class Game:
         self.screen = pygame.display.set_mode(self.screenSize)
         self.pieces_dropped = 0
         self.rows_cleared = 0
+        if mode == "greedy":
+            self.ai = Greedy_AI()
+        elif mode == "genetic":
+            self.ai = Genetic_AI()
+        elif mode == "mcts":
+            self.ai = MCTS_AI()
+        else:
+            self.ai = None
 
     def run(self):
         running = True
-        MOVEEVENT, t = pygame.USEREVENT + 1, 750
+        if self.ai != None:
+            MOVEEVENT, t = pygame.USEREVENT + 1, 100
+        else:
+            MOVEEVENT, t = pygame.USEREVENT + 1, 500
         pygame.time.set_timer(MOVEEVENT, t)
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                if self.ai != None:
+                    if event.type == MOVEEVENT:
+                        x, piece = self.ai.get_best_move(self.board, self.curr_piece)
+                        self.curr_piece = piece
+                        y = self.board.drop_height(self.curr_piece, x)
+                        self.drop(y, x=x)
+                        if self.board.top_filled():
+                            running = False
+                            break
+                    continue
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_s:
                         y = self.board.drop_height(self.curr_piece, self.x)
@@ -75,18 +97,20 @@ class Game:
             self.screen.fill(BLACK)
             self.draw()
             pygame.display.flip()
-            # self.board.place(x, y, Piece(BODIES[3]))
         pygame.quit()
         print("Game information:")
         print("Pieces dropped:", self.pieces_dropped)
         print("Rows cleared:", self.rows_cleared)
 
-    def drop(self, y):
-        self.board.place(self.x, y, self.curr_piece)
+    def drop(self, y, x=None):
+        if x == None:
+            x = self.x
+        self.board.place(x, y, self.curr_piece)
         self.x = 5
         self.y = 20
         self.curr_piece = Piece()
         self.pieces_dropped += 1
+        self.rows_cleared += self.board.clear_rows()
 
     def draw(self):
         self.draw_pieces()

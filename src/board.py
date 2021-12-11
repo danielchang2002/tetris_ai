@@ -2,6 +2,17 @@ from copy import deepcopy
 
 
 class Board:
+    """
+    self.board is a 2d array of booleans, where self.board[i][j] is true
+    if position x = j, y = i has a square that is filled
+
+    self.widths is an array of integers, where self.widths[i] is the
+    number of squares at row i
+
+    self.heights is an array of integers, where self.heights[i] is the
+    maximum height of any square in column i
+    """
+
     def __init__(self):
         self.width, self.height = 10, 20
         self.board = self.init_board()
@@ -46,3 +57,22 @@ class Board:
 
     def top_filled(self):
         return sum([w for w in self.widths[-4:]]) > 0
+
+    def clear_rows(self):
+        num = 0
+        for i in range(len(self.widths)):
+            if self.widths[i] < self.width:
+                continue
+            num += 1
+
+            del self.board[i]
+            self.board.append([False] * self.width)
+
+            del self.widths[i]
+            self.widths.append(0)
+
+            self.heights = [h - 1 for h in self.heights]
+
+            del self.colors[i]
+            self.colors.append([False] * self.width)
+        return num
