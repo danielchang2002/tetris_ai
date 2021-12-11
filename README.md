@@ -6,6 +6,7 @@ Install:
 
 ```sh
 git clone https://github.com/danielchang2002/tetris_ai.git
+cd tetris_pygame
 pip install -r requirements.txt
 ```
 
