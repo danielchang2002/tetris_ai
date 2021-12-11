@@ -2,9 +2,10 @@
 
 Tetris environment with AI algorithms for CSCI 4511W at the University of Minnesota
 
-Install requirements:
+Install:
 
 ```sh
+git clone https://github.com/danielchang2002/tetris_ai.git
 pip install -r requirements.txt
 ```
 
