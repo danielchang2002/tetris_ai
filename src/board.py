@@ -29,6 +29,12 @@ class Board:
             b.append(row)
         return b
 
+    def undo(self):
+        self.board = self.last_board
+        self.colors = self.last_colors
+        self.widths = self.last_widths
+        self.heights = self.last_heights
+
     def place(self, x, y, piece):
         # check if valid
         for pos in piece.body:
@@ -43,6 +49,10 @@ class Board:
             ):
                 return Exception("Bad placement")
         for pos in piece.body:
+            # self.last_board = deepcopy(self.board)
+            # self.last_colors = deepcopy(self.board)
+            # self.last_widths = deepcopy(self.widths)
+            # self.last_heights = deepcopy(self.heights)
             self.board[y + pos[1]][x + pos[0]] = True
             self.colors[y + pos[1]][x + pos[0]] = piece.color
             self.widths[y + pos[1]] += 1
