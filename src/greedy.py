@@ -12,7 +12,7 @@ class Greedy_AI:
     def get_best_move(self, board, piece):
         best_x = -1
         best_piece = None
-        min_cost = 20 + 10 * 24
+        min_cost = 10000000000
         for i in range(4):
             piece = piece.get_next_rotation()
             for x in range(board.width):
@@ -42,28 +42,12 @@ class Greedy_AI:
                 if board_copy[i][j]:
                     # filled, can't be a hole
                     continue
-
-                if i - 1 < 0:
-                    top = True
-                else:
-                    top = board_copy[i - 1][j]
-
-                if i + 1 >= len(board_copy):
-                    bottom = True
-                else:
-                    bottom = board_copy[i + 1][j]
-
-                if j - 1 < 0:
-                    left = True
-                else:
-                    left = board_copy[i][j - 1]
-
-                if j + 1 >= len(board_copy[0]):
-                    right = True
-                else:
-                    right = board_copy[i][j + 1]
-
-                if top and right and bottom and left:
+                has = False
+                for k in range(i + 1, len(board_copy)):
+                    if board_copy[k][j]:
+                        has = True
+                        break
+                if has:
                     holes += 1
-        c = y + max(piece.skirt) + holes
+        c = y + max([body[1] for body in piece.body]) + holes
         return c

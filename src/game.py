@@ -48,6 +48,7 @@ class Game:
                     running = False
                 if self.ai != None:
                     if event.type == MOVEEVENT:
+                        # if event.type == pygame.KEYDOWN:
                         x, piece = self.ai.get_best_move(self.board, self.curr_piece)
                         self.curr_piece = piece
                         y = self.board.drop_height(self.curr_piece, x)
