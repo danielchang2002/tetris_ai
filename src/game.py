@@ -11,7 +11,7 @@ GREEN = (0, 255, 0)
 
 
 class Game:
-    def __init__(self, mode):
+    def __init__(self, mode, agent=None):
         self.board = Board()
         self.curr_piece = Piece()
         self.y = 20
@@ -29,7 +29,10 @@ class Game:
         if mode == "greedy":
             self.ai = Greedy_AI()
         elif mode == "genetic":
-            self.ai = Genetic_AI()
+            if agent == None:
+                self.ai = Genetic_AI()
+            else: 
+                self.ai=agent
         elif mode == "mcts":
             self.ai = MCTS_AI()
         else:
@@ -48,7 +51,6 @@ class Game:
                     running = False
                 if self.ai != None:
                     if event.type == MOVEEVENT:
-                        # if event.type == pygame.KEYDOWN:
                         x, piece = self.ai.get_best_move(self.board, self.curr_piece)
                         self.curr_piece = piece
                         y = self.board.drop_height(self.curr_piece, x)
@@ -99,9 +101,10 @@ class Game:
             self.draw()
             pygame.display.flip()
         pygame.quit()
-        print("Game information:")
-        print("Pieces dropped:", self.pieces_dropped)
-        print("Rows cleared:", self.rows_cleared)
+        # print("Game information:")
+        # rint("Pieces dropped:", self.pieces_dropped)
+        # print("Rows cleared:", self.rows_cleared)
+        return self.pieces_dropped, self.rows_cleared
 
     def drop(self, y, x=None):
         if x == None:
