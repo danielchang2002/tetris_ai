@@ -11,31 +11,46 @@ GREEN = (0, 255, 0)
 
 
 class Game:
-    def __init__(self, mode):
+    def __init__(self, mode, agent=None):
         self.board = Board()
         self.curr_piece = Piece()
         self.y = 20
         self.x = 5
-        pygame.init()
         self.screenWidth = 400
         self.screenHeight = 800
         self.top = 0
-        self.screenSize = self.screenWidth, self.screenHeight
-        self.pieceHeight = (self.screenHeight - self.top) / self.board.height
-        self.pieceWidth = self.screenWidth / self.board.width
-        self.screen = pygame.display.set_mode(self.screenSize)
         self.pieces_dropped = 0
         self.rows_cleared = 0
         if mode == "greedy":
             self.ai = Greedy_AI()
         elif mode == "genetic":
-            self.ai = Genetic_AI()
+            if agent == None:
+                self.ai = Genetic_AI()
+            else:
+                self.ai = agent
         elif mode == "mcts":
             self.ai = MCTS_AI()
         else:
             self.ai = None
 
+    def run_no_visual(self):
+        if self.ai == None:
+            return -1
+        while True:
+            x, piece = self.ai.get_best_move(self.board, self.curr_piece)
+            self.curr_piece = piece
+            y = self.board.drop_height(self.curr_piece, x)
+            self.drop(y, x=x)
+            if self.board.top_filled():
+                break
+        return self.pieces_dropped, self.rows_cleared
+
     def run(self):
+        pygame.init()
+        self.screenSize = self.screenWidth, self.screenHeight
+        self.pieceHeight = (self.screenHeight - self.top) / self.board.height
+        self.pieceWidth = self.screenWidth / self.board.width
+        self.screen = pygame.display.set_mode(self.screenSize)
         running = True
         if self.ai != None:
             MOVEEVENT, t = pygame.USEREVENT + 1, 100
@@ -48,7 +63,6 @@ class Game:
                     running = False
                 if self.ai != None:
                     if event.type == MOVEEVENT:
-                        # if event.type == pygame.KEYDOWN:
                         x, piece = self.ai.get_best_move(self.board, self.curr_piece)
                         self.curr_piece = piece
                         y = self.board.drop_height(self.curr_piece, x)
@@ -99,9 +113,10 @@ class Game:
             self.draw()
             pygame.display.flip()
         pygame.quit()
-        print("Game information:")
-        print("Pieces dropped:", self.pieces_dropped)
-        print("Rows cleared:", self.rows_cleared)
+        # print("Game information:")
+        # rint("Pieces dropped:", self.pieces_dropped)
+        # print("Rows cleared:", self.rows_cleared)
+        return self.pieces_dropped, self.rows_cleared
 
     def drop(self, y, x=None):
         if x == None:
