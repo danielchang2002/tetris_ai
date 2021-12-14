@@ -70,19 +70,31 @@ class Board:
 
     def clear_rows(self):
         num = 0
+        to_delete = []
         for i in range(len(self.widths)):
             if self.widths[i] < self.width:
                 continue
             num += 1
+            to_delete.append(i)
 
-            del self.board[i]
+        for row in to_delete:
+            del self.board[row]
             self.board.append([False] * self.width)
 
-            del self.widths[i]
+            del self.widths[row]
             self.widths.append(0)
 
-            self.heights = [h - 1 for h in self.heights]
-
-            del self.colors[i]
+            del self.colors[row]
             self.colors.append([False] * self.width)
+
+        if num > 0:
+            heights = []
+            for col in range(self.width):
+                m = 0
+                for row in range(self.height):
+                    if self.board[row][col]:
+                        m = row + 1
+                heights.append(m)
+            # print(heights)
+            self.heights = heights
         return num
