@@ -1,7 +1,9 @@
+from os import pardir
 import numpy as np
 from game import Game
 from genetic import Genetic_AI 
 import random
+import pandas as pd
 
 
 def cross(a1, a2, aggregate='lin'):
@@ -28,7 +30,7 @@ def compute_fitness(agent, num_trials):
     fitness = []
     for _ in range(num_trials):
         game = Game('genetic', agent=agent)
-        peices_dropped, rows_cleared = game.run()
+        peices_dropped, rows_cleared = game.run_no_visual()
         fitness.append(peices_dropped)
         print(f'    Trial: {_}/{num_trials}')
 
@@ -37,11 +39,13 @@ def compute_fitness(agent, num_trials):
 
 
 
-def run_X_epochs(num_epochs=10, num_trials=5, pop_size=100, aggregate='lin', num_elite=5, survival_rate=.35):
+def run_X_epochs(num_epochs=10, num_trials=5, pop_size=100, aggregate='lin', num_elite=5, survival_rate=.35, logging_file='default.csv'):
 
     # data collection over epochs
-    epoch_fitness = []
-    epoch_agents = []
+    data=[[1, np.ones(9), 1, np.ones(9),  1, np.ones(9)]]
+    headers = ['avg_fit','avg_gene', 'top_fit', 'top_gene', 'elite_fit', 'elite_gene']
+    df = pd.DataFrame(data, columns=headers)
+    df.to_csv(f'data/{logging_file}.csv', index=False)
 
 
     # create inital population
@@ -55,6 +59,7 @@ def run_X_epochs(num_epochs=10, num_trials=5, pop_size=100, aggregate='lin', num
         # data collection within epochs
         total_fitness = 0
         top_agent = 0
+        gene = np.zeros(9)
 
         for n in range(pop_size): 
             # compute fitness, add to total 
@@ -62,6 +67,8 @@ def run_X_epochs(num_epochs=10, num_trials=5, pop_size=100, aggregate='lin', num
             agent = population[n]
             agent.fit_score = compute_fitness(agent, num_trials=num_trials)
             total_fitness += agent.fit_score 
+            gene+=agent.genotype
+
 
         # compute % of fitness accounted for by each agent 
         for agent in population:
@@ -77,34 +84,48 @@ def run_X_epochs(num_epochs=10, num_trials=5, pop_size=100, aggregate='lin', num
         sorted_pop = sorted(population, reverse=True)
 
         # elite selection: copy over genotypes from top preforming agents
-        top_agent= sorted_pop[0]
+        elite_fit_score = 0
+        elite_genes = np.zeros(9)
+        top_agent=sorted_pop[0]
+
         for i in range(num_elite):
+            elite_fit_score +=sorted_pop[i].fit_score
+            elite_genes += sorted_pop[i].genotype
             next_gen.append(Genetic_AI(genotype=sorted_pop[i].genotype, mutate=False))
-            next_gen.append(Genetic_AI(genotype=sorted_pop[i].genotype, mutate=True))
 
         # selection: select top agents as parents base on survival rate  
         num_parents = round(pop_size * survival_rate)
         parents = sorted_pop[:num_parents]
 
         # crossover: randomly select 2 parents and cross genotypes
-        for _ in range(pop_size-(num_elite*2)):
+        for _ in range(pop_size-(num_elite)):
             # randomly select parents, apply crossover, and add to the next generation
             # the cross functions automatically applies mutation to the new agent
             parents = random.sample(parents, 2)
             next_gen.append(cross(parents[0], parents[1], aggregate=aggregate))
 
 
-        epoch_fitness.append(total_fitness)
-        epoch_agents.append(top_agent)
-        print(f'\nEpoch {epoch}: \n    total fitness: {total_fitness}\n    best agent: {top_agent.fit_score}\n')
+        avg_fit = (total_fitness/pop_size)
+        avg_gene = (gene/pop_size)
+        top_fit = (top_agent.fit_score)
+        top_gene = (top_agent.genotype)
+        elite_fit = (elite_fit_score/num_elite)
+        elite_gene = (elite_genes/num_elite)
+
+        data = [[avg_fit, avg_gene, top_fit, top_gene, elite_fit, elite_gene]]
+        df = pd.DataFrame(data, columns=headers)
+        df.to_csv(f'data/{logging_file}.csv', mode='a', index=False, header=False)
+
+
+        print(f'\nEpoch {epoch}: \n    total fitness: {total_fitness/pop_size}\n    best agent: {top_agent.fit_score}\n')
 
         population = next_gen 
 
-    return epoch_fitness, epoch_agents
+    return data
 
 
         
 
 
 if __name__ == '__main__':
-    run_X_epochs(num_epochs=10, num_trials=3, pop_size=25, num_elite=3)
+    run_X_epochs(num_epochs=15, num_trials=5, pop_size=50, num_elite=5)
