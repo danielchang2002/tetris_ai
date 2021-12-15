@@ -5,10 +5,8 @@ class Board:
     """
     self.board is a 2d array of booleans, where self.board[i][j] is true
     if position x = j, y = i has a square that is filled
-
     self.widths is an array of integers, where self.widths[i] is the
     number of squares at row i
-
     self.heights is an array of integers, where self.heights[i] is the
     maximum height of any square in column i
     """
@@ -67,6 +65,7 @@ class Board:
 
     def top_filled(self):
         return sum([w for w in self.widths[-4:]]) > 0
+
 
     def clear_rows(self):
         num = 0
