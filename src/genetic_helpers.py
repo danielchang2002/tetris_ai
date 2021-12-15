@@ -1,14 +1,17 @@
 import numpy as np
+
 """
 Helper Functions
 """
 
+
 def bool_to_np(board):
     f = lambda x: 1 if x == True else 0
-    return np.asarray([[f(j) for j in i] for i in board]) 
+    return np.asarray([[f(j) for j in i] for i in board])
 
 
 def get_peaks(area):
+    #
     peaks = np.array([])
     for col in range(area.shape[1]):
         if 1 in area[:, col]:
@@ -56,7 +59,7 @@ def get_holes(peaks, area):
         if start == 0:
             holes.append(0)
         else:
-            holes.append(np.count_nonzero(area[int(start):, col] == 0))
+            holes.append(np.count_nonzero(area[int(start) :, col] == 0))
     return holes
 
 

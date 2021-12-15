@@ -1,5 +1,6 @@
 from board import Board
 from greedy import Greedy_AI
+
 from genetic import Genetic_AI
 from mcts import MCTS_AI
 from piece import Piece
@@ -43,6 +44,7 @@ class Game:
             self.drop(y, x=x)
             if self.board.top_filled():
                 break
+        print(self.pieces_dropped, self.rows_cleared)
         return self.pieces_dropped, self.rows_cleared
 
     def run(self):
@@ -63,6 +65,7 @@ class Game:
                     running = False
                 if self.ai != None:
                     if event.type == MOVEEVENT:
+                        # if event.type == pygame.KEYDOWN:
                         x, piece = self.ai.get_best_move(self.board, self.curr_piece)
                         self.curr_piece = piece
                         y = self.board.drop_height(self.curr_piece, x)

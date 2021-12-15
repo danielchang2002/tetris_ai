@@ -1,4 +1,6 @@
 from random import choice
+from copy import deepcopy
+import numpy as np
 
 RED = (255, 0, 0)
 ORANGE = (255, 165, 0)
