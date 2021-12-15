@@ -114,8 +114,8 @@ class Game:
             pygame.display.flip()
         pygame.quit()
         # print("Game information:")
-        # rint("Pieces dropped:", self.pieces_dropped)
-        # print("Rows cleared:", self.rows_cleared)
+        print("Pieces dropped:", self.pieces_dropped)
+        print("Rows cleared:", self.rows_cleared)
         return self.pieces_dropped, self.rows_cleared
 
     def drop(self, y, x=None):
