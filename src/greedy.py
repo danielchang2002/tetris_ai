@@ -82,6 +82,6 @@ class Greedy_AI:
         for i in range(len(heights) - 1):
             bumpiness += abs(heights[i] - heights[i + 1])
 
-        c = 0.5 * agg_height + 0.35 * holes + 0.18 * bumpiness - 0.76 * num_cleared
+        # c = 0.5 * agg_height + 0.35 * holes + 0.18 * bumpiness - 0.76 * num_cleared
         c = agg_height + holes + bumpiness - num_cleared
         return c
