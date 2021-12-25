@@ -1,21 +1,72 @@
 import numpy as np
 from collections import defaultdict
+from board import Board
+from copy import deepcopy
+from piece import Piece
+from greedy import Greedy_AI
 
 """
 Performs MCTS to return the best move
 """
 
+greed = Greedy_AI()
+
 
 class MCTS_AI:
     def get_best_move(self, board, piece):
-        best_x = 0
-        best_piece = piece.get_next_rotation()
-        return best_x, best_piece
+        initial_state = State(board, piece, 0)
+        root = MonteCarloTreeSearchNode(initial_state)
+        selected_node = root.best_action()
+        action = selected_node.parent_action
+        x, piece = action[1], action[0]
+        return x, piece
+
+
+class State:
+    def __init__(self, board, piece, depth, cleared=0):
+        self.board = board
+        self.piece = piece
+        self.depth = depth
+        self.cleared = cleared
+
+    def get_legal_actions(self):
+        actions = []
+        p = self.piece
+        for i in range(4):
+            p = p.get_next_rotation()
+            for x in range(self.board.width):
+                try:
+                    y = self.board.drop_height(p, x)
+                except:
+                    continue
+                action = (p, x, y)
+                actions.append(action)
+        return actions
+
+    def move(self, action):
+        board_copy = Board()
+        arr = deepcopy(self.board.board)
+        widths = deepcopy(self.board.widths)
+        heights = deepcopy(self.board.heights)
+        board_copy.board = arr
+        board_copy.widths = widths
+        board_copy.heights = heights
+        p, x, y = action
+        board_copy.place(x, y, p)
+        cleared = board_copy.clear_rows()
+        return State(board_copy, Piece(), self.depth + 1, self.cleared + cleared)
+
+    def is_game_over(self):
+        return False
+
+    def game_result(self):
+        return -greed.cost0(self.board)
 
 
 class MonteCarloTreeSearchNode:
     def __init__(self, state, parent=None, parent_action=None):
         self.state = state
+        self.simulations = 1
         self.parent = parent
         self.parent_action = parent_action
         self.children = []
@@ -23,18 +74,18 @@ class MonteCarloTreeSearchNode:
         self._results = defaultdict(int)
         self._results[1] = 0
         self._results[-1] = 0
-        self._untried_actions = None
+        self._score = 0
         self._untried_actions = self.untried_actions()
-        return
 
     def untried_actions(self):
         self._untried_actions = self.state.get_legal_actions()
         return self._untried_actions
 
     def q(self):
-        wins = self._results[1]
-        loses = self._results[-1]
-        return wins - loses
+        # wins = self._results[1]
+        # loses = self._results[-1]
+        # return wins - loses
+        return self._score
 
     def n(self):
         return self._number_of_visits
@@ -53,6 +104,7 @@ class MonteCarloTreeSearchNode:
         return self.state.is_game_over()
 
     def rollout(self):
+        return self.state.game_result()
         current_rollout_state = self.state
 
         while not current_rollout_state.is_game_over():
@@ -65,7 +117,8 @@ class MonteCarloTreeSearchNode:
 
     def backpropagate(self, result):
         self._number_of_visits += 1.0
-        self._results[result] += 1.0
+        # self._results[result] += 1.0
+        self._score += result
         if self.parent:
             self.parent.backpropagate(result)
 
@@ -84,6 +137,8 @@ class MonteCarloTreeSearchNode:
 
         return possible_moves[np.random.randint(len(possible_moves))]
 
+        # return greed.get_best_move(self.state.board, self.state.piece)
+
     def _tree_policy(self):
 
         current_node = self
@@ -96,57 +151,10 @@ class MonteCarloTreeSearchNode:
         return current_node
 
     def best_action(self):
-        simulation_no = 100
-
-        for i in range(simulation_no):
+        for i in range(self.simulations):
 
             v = self._tree_policy()
             reward = v.rollout()
             v.backpropagate(reward)
 
         return self.best_child(c_param=0.0)
-
-    def get_legal_actions(self):
-        """
-        Modify according to your game or
-        needs. Constructs a list of all
-        possible actions from current state.
-        Returns a list.
-        """
-
-    def is_game_over(self):
-        """
-        Modify according to your game or
-        needs. It is the game over condition
-        and depends on your game. Returns
-        true or false
-        """
-
-    def game_result(self):
-        """
-        Modify according to your game or
-        needs. Returns 1 or 0 or -1 depending
-        on your state corresponding to win,
-        tie or a loss.
-        """
-
-    def move(self, action):
-        """
-        Modify according to your game or
-        needs. Changes the state of your
-        board with a new value. For a normal
-        Tic Tac Toe game, it can be a 3 by 3
-        array with all the elements of array
-        being 0 initially. 0 means the board
-        position is empty. If you place x in
-        row 2 column 3, then it would be some
-        thing like board[2][3] = 1, where 1
-        represents that x is placed. Returns
-        the new state after making a move.
-        """
-
-
-def main():
-    root = MonteCarloTreeSearchNode(state=initial_state)
-    selected_node = root.best_action()
-    return

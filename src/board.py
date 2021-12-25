@@ -66,7 +66,6 @@ class Board:
     def top_filled(self):
         return sum([w for w in self.widths[-4:]]) > 0
 
-
     def clear_rows(self):
         num = 0
         to_delete = []

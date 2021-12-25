@@ -1,4 +1,5 @@
 from board import Board
+from time import sleep
 from greedy import Greedy_AI
 
 from genetic import Genetic_AI
@@ -17,8 +18,8 @@ class Game:
         self.curr_piece = Piece()
         self.y = 20
         self.x = 5
-        self.screenWidth = 400
-        self.screenHeight = 800
+        self.screenWidth = 500
+        self.screenHeight = 1000
         self.top = 0
         self.pieces_dropped = 0
         self.rows_cleared = 0
@@ -68,7 +69,26 @@ class Game:
                         # if event.type == pygame.KEYDOWN:
                         x, piece = self.ai.get_best_move(self.board, self.curr_piece)
                         self.curr_piece = piece
+
+                        while self.x != x:
+                            if self.x - x < 0:
+                                self.x += 1
+                            else:
+                                self.x -= 1
+                            self.y -= 1
+                            self.screen.fill(BLACK)
+                            self.draw()
+                            pygame.display.flip()
+                            sleep(0.01)
+
                         y = self.board.drop_height(self.curr_piece, x)
+                        while self.y != y:
+                            self.y -= 1
+                            self.screen.fill(BLACK)
+                            self.draw()
+                            pygame.display.flip()
+                            sleep(0.01)
+
                         self.drop(y, x=x)
                         if self.board.top_filled():
                             running = False
